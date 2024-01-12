@@ -1,2 +1,2 @@
 def compute(a: int):
-    return a + 1
+    return a
