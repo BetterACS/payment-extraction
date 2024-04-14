@@ -1,1 +1,1 @@
-from .load_model import load_model
+from .load_model import load_model, download_image
