@@ -1,8 +1,9 @@
 import pytest
 
 import sys
+from pathlib import Path
 
-sys.path.append("..")
+sys.path.append(Path(__file__).resolve().parents[1])
 from utils.load_model import load_model
 
 
