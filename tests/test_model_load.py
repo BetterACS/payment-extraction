@@ -3,7 +3,7 @@ import pytest
 import sys
 from pathlib import Path
 
-sys.path.append(Path(__file__).resolve().parents[1])
+sys.path.append(str(Path(__file__).resolve().parents[1].absolute()))
 from utils.load_model import load_model
 
 
