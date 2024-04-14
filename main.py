@@ -2,7 +2,7 @@ import urllib.request
 from datetime import datetime
 from typing import Any, Dict
 
-import torch
+import pandas as pd
 import uvicorn
 from fastapi import FastAPI
 from PIL import Image
@@ -32,7 +32,7 @@ async def extract_text_from_image(url: str = "") -> Dict[str, Any]:
         return {"code": 400, "message": "Invalid image URL"}
 
     reader, model, processor, device = load_model()
-    images_list = detect_text(reader, name)
+    images_list, dataframe = detect_text(reader, name)
     if len(images_list) == 0:
         return {"code": 400, "message": "No text detected"}
 
@@ -44,7 +44,9 @@ async def extract_text_from_image(url: str = "") -> Dict[str, Any]:
         generated_text = processor.tokenizer.batch_decode(outputs, skip_special_tokens=True)[0]
         texts.append(generated_text)
 
-    return {"code": 200, "message": "Text extracted successfully", "data": texts}
+    dataframe["text"] = texts
+
+    return {"code": 200, "message": "Text extracted successfully", "data": dataframe["text"].tolist()}
 
 
 if __name__ == "__main__":

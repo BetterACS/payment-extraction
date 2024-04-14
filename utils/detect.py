@@ -2,9 +2,11 @@ import cv2
 import numpy as np
 from itertools import combinations
 from PIL import Image
+import pandas as pd
+from typing import Tuple, List
 
 
-def detect_text(reader, path: str):
+def detect_text(reader, path: str) -> Tuple[List[Image.Image], pd.DataFrame]:
     text_boxes = []
     im = cv2.imread(str(path))
     im = cv2.cvtColor(im, cv2.COLOR_BGR2RGB)
@@ -56,15 +58,25 @@ def detect_text(reader, path: str):
 
         new_points.append([x1, x2, y1, y2])
 
+    dataframe_dict = {
+        "x1": [],
+        "x2": [],
+        "y1": [],
+        "y2": [],
+    }
     for point in new_points:
         x1, x2, y1, y2 = point
-        # cv2.rectangle(blank_image, (x1, y1), (x2, y2), (255, 0, 0), 2)
         image = im[y1:y2, x1:x2]
         if image.shape[0] <= 0 or image.shape[1] <= 0:
             continue
 
-        if image.shape[0] > 26:
+        if image.shape[0] > 20:
             image = Image.fromarray(cv2.cvtColor(image, cv2.COLOR_BGR2RGB)).convert("RGB")
             text_boxes.append(image)
 
-    return text_boxes
+        dataframe_dict["x1"].append(x1)
+        dataframe_dict["x2"].append(x2)
+        dataframe_dict["y1"].append(y1)
+        dataframe_dict["y2"].append(y2)
+
+    return text_boxes, pd.DataFrame(dataframe_dict)
