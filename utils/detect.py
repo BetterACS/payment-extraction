@@ -89,7 +89,7 @@ def merge_bbox(points: List[BBOX], width: int, height: int) -> List[BBOX]:
         y1 = min(y1, y3)
         y2 = max(y2, y4)
 
-        new_points.append([x1, x2, y1, y2])
+        new_points.append((x1, x2, y1, y2))
 
     return new_points
 
