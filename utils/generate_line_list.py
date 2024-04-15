@@ -2,7 +2,6 @@
 import pandas as pd
 from sklearn.metrics import silhouette_score
 import numpy as np
-import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
 
 def generate_line_list(df:pd.DataFrame) -> list:
@@ -20,7 +19,7 @@ def generate_line_list(df:pd.DataFrame) -> list:
     optimal_clusters = range_n_clusters[np.argmax(silhouette_scores)]
     
     #print(optimal_clusters)
-    
+
     # Perform K-means clustering
     kmeans = KMeans(n_clusters=optimal_clusters) 
     df['cluster'] = kmeans.fit_predict(y_coords)
