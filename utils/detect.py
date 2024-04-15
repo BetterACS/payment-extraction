@@ -29,6 +29,7 @@ def detect_text(reader, path: str) -> List[BBOX]:
     # Detect text from image
     result = reader.detect(im)
     points = [point for point in result[0][0]]
+    # rotate_points = [point for point in result[1][0]]
 
     if len(points) == 0:
         return []

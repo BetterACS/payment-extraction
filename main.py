@@ -3,8 +3,10 @@ from typing import Any, Dict
 import uvicorn
 from fastapi import FastAPI
 
-from utils import load_model, download_image
+from utils import load_model, download_image, generate_line_list
 from utils.detect import detect_pipeline
+
+from llm.convert import convert_text_to_json
 
 app = FastAPI()
 
@@ -38,7 +40,12 @@ async def extract_text_from_image(url: str = "") -> Dict[str, Any]:
 
     dataframe["text"] = texts
 
-    return {"code": 200, "message": "Text extracted successfully", "data": dataframe["text"].tolist()}
+    line_list = generate_line_list(dataframe)
+    plain_text = "\n".join(line_list)
+
+    output = convert_text_to_json(plain_text)
+
+    return {"code": 200, "message": "Text extracted successfully", "data": output}
 
 
 if __name__ == "__main__":
