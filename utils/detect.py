@@ -6,12 +6,13 @@ import cv2
 import numpy as np
 import pandas as pd
 from PIL import Image
+from jdeskew.estimator import get_angle
+from jdeskew.utility import rotate
 
 sys.path.append("..")
 import config.model
 
 BBOX = Tuple[int, int, int, int]
-
 
 def detect_text(reader, path: str) -> List[BBOX]:
     """
@@ -26,10 +27,12 @@ def detect_text(reader, path: str) -> List[BBOX]:
     """
     im = cv2.imread(str(path))
     im = cv2.cvtColor(im, cv2.COLOR_BGR2RGB)
+    angle = get_angle(im)
+    im = rotate(im, angle)
+    
     # Detect text from image
     result = reader.detect(im)
     points = [point for point in result[0][0]]
-    # rotate_points = [point for point in result[1][0]]
 
     if len(points) == 0:
         return []

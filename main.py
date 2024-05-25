@@ -7,8 +7,18 @@ from utils import load_model, download_image, generate_line_list
 from utils.detect import detect_pipeline
 
 from llm.convert import convert_text_to_json
-
+from llm.test import test_llm
+from fastapi.middleware.cors import CORSMiddleware
 app = FastAPI()
+origins = ["*"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.get("/")
@@ -42,11 +52,16 @@ async def extract_text_from_image(url: str = "") -> Dict[str, Any]:
 
     line_list = generate_line_list(dataframe)
     plain_text = "\n".join(line_list)
+    with open(name.replace(".jpg", ".txt"), 'w') as log_file:
+        log_file.write(plain_text)
 
     output = convert_text_to_json(plain_text)
 
     return {"code": 200, "message": "Text extracted successfully", "data": output}
 
+@app.get("/test/llm")
+async def test(query: str):
+    return {"answer", test_llm(query)}
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
