@@ -6,28 +6,22 @@ import cv2
 import numpy as np
 import pandas as pd
 from PIL import Image
+from jdeskew.estimator import get_angle
+from jdeskew.utility import rotate
 
 sys.path.append("..")
 import config.model
 
 BBOX = Tuple[int, int, int, int]
 
-
-def detect_text(reader, path: str) -> List[BBOX]:
-    """
-    Detect text from image using EasyOCR.
-
-    Args:
-        reader: EasyOCR Reader object.
-        path: str, path to image.
-
-    Returns:
-        List of bounding boxes.
-    """
-    im = cv2.imread(str(path))
-    im = cv2.cvtColor(im, cv2.COLOR_BGR2RGB)
+def detect_text(reader, image) -> List[BBOX]:
+    # im = cv2.imread(str(path))
+    # im = cv2.cvtColor(im, cv2.COLOR_BGR2RGB)
+    # angle = get_angle(im)
+    # im = rotate(im, angle)
+    
     # Detect text from image
-    result = reader.detect(im)
+    result = reader.detect(image)
     points = [point for point in result[0][0]]
 
     if len(points) == 0:
@@ -94,24 +88,13 @@ def merge_bbox(points: List[BBOX], width: int, height: int) -> List[BBOX]:
     return new_points
 
 
-def detect_pipeline(reader, path: str) -> Tuple[List[Image.Image], pd.DataFrame]:
-    """
-    Detect text from image and merge bounding boxes.
-
-    Args:
-        reader: EasyOCR Reader object.
-        path: str, path to image.
-
-    Returns:
-        List of text boxes (PIL.Image) and DataFrame of bounding boxes (x1, x2, y1, y2).
-    """
-
+def detect_pipeline(reader, image) -> Tuple[List[Image.Image], pd.DataFrame]:
     # Detect text from image
-    points = detect_text(reader, path)
+    points = detect_text(reader, image)
     if len(points) == 0:
         return [], pd.DataFrame()
 
-    im = cv2.imread(str(path))
+    im = image
     height, width, _ = im.shape
     # Merge bounding boxes
     new_points = merge_bbox(points, width, height)
