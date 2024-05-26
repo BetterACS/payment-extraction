@@ -2,13 +2,20 @@ from typing import Any, Dict
 
 import uvicorn
 from fastapi import FastAPI
-
-from utils import load_model, download_image, generate_line_list
+import cv2
+from utils import (
+    load_grounded_models, 
+    get_receipt_only, 
+    load_model, 
+    download_image, 
+    generate_line_list
+)
 from utils.detect import detect_pipeline
 
 from llm.convert import convert_text_to_json
 from llm.test import test_llm
 from fastapi.middleware.cors import CORSMiddleware
+
 app = FastAPI()
 origins = ["*"]
 
@@ -35,8 +42,14 @@ async def extract_text_from_image(url: str = "") -> Dict[str, Any]:
     if name == "":
         return {"code": 400, "message": "Invalid image URL"}
 
+    grounded_dino, sam_preditor = load_grounded_models()
+    image = get_receipt_only(name, grounded_dino, sam_preditor)
+
+    cv2.imwrite("test_image.jpg", image)
+
     reader, model, processor, device = load_model()
-    images_list, dataframe = detect_pipeline(reader, name)
+    
+    images_list, dataframe = detect_pipeline(reader, image)
     if len(images_list) == 0:
         return {"code": 400, "message": "No text detected"}
 
@@ -49,7 +62,6 @@ async def extract_text_from_image(url: str = "") -> Dict[str, Any]:
         texts.append(generated_text)
 
     dataframe["text"] = texts
-
     line_list = generate_line_list(dataframe)
     plain_text = "\n".join(line_list)
     with open(name.replace(".jpg", ".txt"), 'w') as log_file:

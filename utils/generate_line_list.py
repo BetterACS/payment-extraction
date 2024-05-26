@@ -6,10 +6,10 @@ from collections import defaultdict
 
 
 def generate_line_list(df: pd.DataFrame) -> list:
-    y_coords = df[["y2", "y1"]].values
+    y_coords = df[["y1"]].values
     silhouette_scores = []
     # บางทีปรับ range 2 ขึ้นทำให้ค่าเพี้ยน
-    range_n_clusters = range(2, min(len(y_coords) - 1, 40))  # Define the range of cluster numbers to try
+    range_n_clusters = range(len(y_coords)//2, min(len(y_coords) - 1, 40))  # Define the range of cluster numbers to try
 
     for n_clusters in range_n_clusters:
         kmeans = KMeans(n_clusters=n_clusters)
@@ -24,7 +24,7 @@ def generate_line_list(df: pd.DataFrame) -> list:
     df["cluster"] = kmeans.fit_predict(y_coords)
 
     # Sort dataframe by cluster and then by y1 to get the lines in order
-    df.sort_values(by=["y1", "y2"], inplace=True)
+    df.sort_values(by=["y1"], inplace=True)
 
     line_dict = defaultdict(list)
     output_list = []
