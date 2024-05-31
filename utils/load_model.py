@@ -28,7 +28,7 @@ def load_model():
     model = VisionEncoderDecoderModel.from_pretrained(config.model.TROCR_MODEL)
     processor = TrOCRProcessor.from_pretrained(config.model.TROCR_MODEL)
     model.to(device)
-    reader = Reader(["en", "th"], gpu=False, recognizer=False)
+    reader = Reader(["en", "th"], gpu=True, recognizer=False)
 
     return reader, model, processor, device
 

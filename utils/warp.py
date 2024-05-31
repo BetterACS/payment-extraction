@@ -83,6 +83,19 @@ def euclidean_distance(vector1, vector2):
     distance = np.linalg.norm(vector1 - vector2)
     return distance
 
+def show_mask(mask, image, random_color=True):
+    if random_color:
+        color = np.concatenate([np.random.random(3), np.array([0.8])], axis=0)
+    else:
+        color = np.array([30/255, 144/255, 255/255, 0.6])
+    h, w = mask.shape[-2:]
+    mask_image = mask.reshape(h, w, 1) * color.reshape(1, 1, -1)
+    
+    annotated_frame_pil = Image.fromarray(image).convert("RGBA")
+    mask_image_pil = Image.fromarray((mask_image.cpu().numpy() * 255).astype(np.uint8)).convert("RGBA")
+
+    return np.array(Image.alpha_composite(annotated_frame_pil, mask_image_pil))
+
 def get_receipt_only(path, groundingdino_model, sam_predictor):
     TEXT_PROMPT = "receipt"
     BOX_TRESHOLD = 0.3
@@ -113,6 +126,8 @@ def get_receipt_only(path, groundingdino_model, sam_predictor):
         multimask_output = False,
     )
     masks = masks[0][0].cpu()
+    cv2.imwrite("segment_image.jpg", show_mask(masks, image_source))
+    
     corners = find_segment_corners(masks)
     desired_points = np.float32(((0, 0), (524, 0), (0, 960), (524, 960)))
     corner = np.float32(corners)

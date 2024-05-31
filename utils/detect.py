@@ -98,7 +98,12 @@ def detect_pipeline(reader, image) -> Tuple[List[Image.Image], pd.DataFrame]:
     height, width, _ = im.shape
     # Merge bounding boxes
     new_points = merge_bbox(points, width, height)
-
+    save_image = im.copy()
+    for point in new_points:
+        x1, x2, y1, y2 = point
+        cv2.rectangle(save_image, (x1, y1), (x2, y2), (0, 255, 0), 2)
+    cv2.imwrite("output.jpg", save_image)
+    
     dataframe_dict = {
         "x1": [],
         "x2": [],

@@ -44,3 +44,8 @@ MAX_TOKENS = 300
 TEMPERATURE = 0.6
 TOP_P = 1
 # endregion
+
+ckpt_repo_id = "ShilongLiu/GroundingDINO"
+ckpt_filenmae = "groundingdino_swinb_cogcoor.pth"
+ckpt_config_filename = "GroundingDINO_SwinB.cfg.py"
+sam_checkpoint = 'sam_vit_h_4b8939.pth'

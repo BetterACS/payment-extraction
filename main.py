@@ -55,16 +55,26 @@ async def extract_text_from_image(url: str = "") -> Dict[str, Any]:
 
     texts = []
 
-    for img in images_list:
-        pixels_value = processor(img, return_tensors="pt").pixel_values
+    batch = 32
+    for chunk in range(0, len(images_list), batch):
+        images = images_list[chunk:chunk+batch]
+        pixels_value = processor(images, return_tensors="pt", padding=True).pixel_values
         outputs = model.generate(pixels_value.to("cuda"))
-        generated_text = processor.tokenizer.batch_decode(outputs, skip_special_tokens=True)[0]
-        texts.append(generated_text)
+        generated_text = processor.tokenizer.batch_decode(outputs, skip_special_tokens=True)
+        texts.extend(generated_text)
+    
+    # for img in images_list:
+    #     pixels_value = processor(img, return_tensors="pt").pixel_values
+    #     outputs = model.generate(pixels_value.to("cuda"))
+    #     generated_text = processor.tokenizer.batch_decode(outputs, skip_special_tokens=True)[0]
+    #     texts.append(generated_text)
 
     dataframe["text"] = texts
+    dataframe.to_csv(name.replace(".jpg", ".csv"), index=False)
+    
     line_list = generate_line_list(dataframe)
     plain_text = "\n".join(line_list)
-    with open(name.replace(".jpg", ".txt"), 'w') as log_file:
+    with open(name.replace(".jpg", ".txt"), 'w', encoding='utf-8') as log_file:
         log_file.write(plain_text)
 
     output = convert_text_to_json(plain_text)
